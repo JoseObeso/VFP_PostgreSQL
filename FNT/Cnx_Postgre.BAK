@@ -1,0 +1,17 @@
+** cadena de conexion PostgreSQL 12
+CLOSE DATABASES all
+clear
+lcStringCnxLocal = "Driver={PostgreSQL ODBC Driver(UNICODE)};Server=127.0.0.1;Port=5432;Database=PANEL;Uid=postgres;Pwd=12345678;"
+
+Sqlsetprop(0,"DispLogin" , 3 ) 
+SQLSETPROP(0,"IdleTimeout",0)
+gconecta=SQLSTRINGCONNECT(lcStringCnxLocal)
+
+?gconecta
+TEXT TO lqry_consultar NOSHOW 
+	    SELECT * fROM acceso.musuario
+ENDTEXT
+lejecutabusca = sqlexec(gconecta,lqry_consultar, "tresul")
+SELECT TRESUL
+BROWSE
+

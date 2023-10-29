@@ -1,0 +1,57 @@
+** cadena de conexion PostgreSQL 12
+CLOSE DATABASES all
+clear
+lcStringCnxLocal = "Driver={PostgreSQL ODBC Driver(UNICODE)};Server=127.0.0.1;Port=5432;Database=BDIRTP;Uid=postgres;Pwd=12345;"
+Sqlsetprop(0,"DispLogin" , 3 ) 
+SQLSETPROP(0,"IdleTimeout",0)
+gconecta=SQLSTRINGCONNECT(lcStringCnxLocal)
+
+
+clear
+
+** Ver todos los registros en la tabla del server -*
+
+TEXT TO lqry_consultar NOSHOW 
+     Select * from bienes_patrimoniales."ListaSBN"
+ENDTEXT
+lejecutabusca = sqlexec(gconecta,lqry_consultar, "tresul")
+SELECT TRESUL
+gO top
+SCAN
+  lc_codigo = ALLTRIM(tresul.codigo)
+  lc_denominacion = ALLTRIM(tresul.denominacion)
+  TEXT TO lqry_ver NOSHOW 
+       select * from bienes_patrimoniales.catalogobienes WHERE vcodigo = ?lc_codigo
+  ENDTEXT
+  lejecutabusca = sqlexec(gconecta,lqry_ver, "tver")
+  SELECT tver
+  ln_ver = reccount()
+  IF ln_ver = 0 then
+    TEXT TO lqry_update NOSHOW 
+        UPDATE bienes_patrimoniales."ListaSBN"
+              SET existe = '1', codigo_existe = '1' where codigo = ?lc_codigo
+	ENDTEXT
+	lejecutabusca = sqlexec(gconecta,lqry_update)       
+
+      
+  ENDIF
+  
+  
+  TEXT TO lqry_ver2 NOSHOW 
+       select * from bienes_patrimoniales.catalogobienes WHERE vdenominacion = ?lc_denominacion
+  ENDTEXT
+  lejecutabusca = sqlexec(gconecta,lqry_ver, "tver2")
+  SELECT tver2
+  ln_ver2 = reccount()
+  IF ln_ver2 = 0 then
+    TEXT TO lqry_update2 NOSHOW 
+        UPDATE bienes_patrimoniales."ListaSBN"
+              SET descripcion_existe = '1' where denominacion = ?lc_denominacion
+	ENDTEXT
+	lejecutabusca = sqlexec(gconecta,lqry_update2)       
+  ENDIF
+  ?lc_codigo + ' - ' + ?lc_denominacion
+  
+
+ENDSCAN
+*!*	  ?' ---  FIN ---'
